@@ -6,6 +6,8 @@ import {
   onAuthStateChanged,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { setUser } from "../store/usersSlice.js";
@@ -18,6 +20,8 @@ function LoginPage() {
   const [loginType, setLoginType] = useState("login");
   const [userCredentials, setUserCredentials] = useState({});
   const [error, setError] = useState("");
+
+  const provider = new GoogleAuthProvider();
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -53,6 +57,22 @@ function LoginPage() {
       const errorMessage = error.message;
       setError(errorMessage);
     });
+  };
+
+  const handleGoogleSignup = () => {
+    signInWithPopup(auth, provider)
+      .then((res) => {
+        // once user successfully authenticates with google
+        const credential = GoogleAuthProvider.credentialFromResult(res);
+
+        const token = credential.accessToken;
+
+        const user = res.user;
+      })
+      .catch((error) => {
+        const errorMessage = error.message;
+        console.log(errorMessage);
+      });
   };
 
   const handleLogin = (e) => {
@@ -100,7 +120,7 @@ function LoginPage() {
           <div className="social-options">
             <h3>Continue With</h3>
             <div className="buttons">
-              <button className="google">
+              <button className="google" onClick={handleGoogleSignup}>
                 <img
                   src={googleLogo}
                   alt="google logo"
